@@ -4,5 +4,5 @@ CREATE TABLE "users" (
                          "email" VARCHAR(100) UNIQUE NOT NULL,
                          "hashed_password" VARCHAR(100) NOT NULL,
                          "phone_number" VARCHAR(100) NOT NULL,
-                         "role" VARCHAR(100) NOT NULL
+                         "role" VARCHAR(100)
 );
