@@ -31,4 +31,7 @@ generate_go_client_code_users:
 sqlc:
 	sqlc generate
 
-.PHONY:createdb_pizzeria createdb_users dropdb_pizzeria dropdb_user migratedown_pizzeria migratedown_users migrateup_pizzeria migrateup_users generate_go_server_code_users generate_go_client_code_users sqlc
+test:
+	go test -v -cover ./...
+
+.PHONY:createdb_pizzeria createdb_users dropdb_pizzeria dropdb_user migratedown_pizzeria migratedown_users migrateup_pizzeria migrateup_users generate_go_server_code_users generate_go_client_code_users sqlc test
