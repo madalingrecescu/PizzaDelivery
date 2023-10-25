@@ -10,6 +10,19 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: db_user
+          POSTGRES_PASSWORD: db_pass
+          POSTGRES_DB: users
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v3
 
@@ -17,6 +30,9 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: '1.20'
+
+      - name: Run migrations
+        run: make migrateup_users
 
       - name: Test
         run: make test
