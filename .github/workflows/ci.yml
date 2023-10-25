@@ -17,7 +17,7 @@ jobs:
         env:
           POSTGRES_USER: db_user
           POSTGRES_PASSWORD: db_pass
-          POSTGRES_DB: users
+          POSTGRES_DB: users_db
         ports:
           - 5431:5432
         options: >-
@@ -46,6 +46,8 @@ jobs:
       - name: Check PostgreSQL Status
         run: |
           psql -h localhost -U db_user -d users -c "SELECT 'PostgreSQL is running' as status" || exit 1
+          sudo mv migrate /usr/local/bin/
+          sudo chmod +x /usr/local/bin/migrate
 
 
       - name: Run migrations
