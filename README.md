@@ -24,3 +24,14 @@ Must install the library:
 
 brew install golang-migrate
 
+sqlc
+Used for making queries in the database
+We need to install the library:
+macOS: brew install sqlc
+and then to generate the code: make sqlc
+go get github.com/lib/pq
+
+
+swagger
+Used for making the openAPI specification and generating the go code from it
+We need to install the library:
