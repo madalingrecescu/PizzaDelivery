@@ -39,12 +39,8 @@ jobs:
           sudo mv migrate /usr/local/bin/
           sudo chmod +x /usr/local/bin/migrate
 
+      - name: Run migrations
+        run: make migrateup
+
       - name: Test
-        env:
-          db_user: ${{ env.POSTGRES_USER }}
-          db_pass: ${{ env.POSTGRES_PASSWORD }}
-        run: |
-          echo "db_user: $db_user"
-          echo "db_pass: $db_pass"
-          make migrateup_users
-          make test
+        run: make test
