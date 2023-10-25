@@ -46,9 +46,6 @@ jobs:
       - name: Check PostgreSQL Status
         run: |
           psql -h localhost -U db_user -d users -c "SELECT 'PostgreSQL is running' as status" || exit 1
-          sudo mv migrate /usr/local/bin/
-          sudo chmod +x /usr/local/bin/migrate
-
 
       - name: Run migrations
         run: make migrateup_users
