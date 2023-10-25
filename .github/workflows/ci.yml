@@ -38,15 +38,6 @@ jobs:
           curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/migrate.linux-amd64.tar.gz | tar xvz
           sudo mv migrate /bin/sh
 
-      - name: Debug Environment Variables
-        run: |
-          echo "db_user: $db_user"
-          echo "db_pass: $db_pass"
-
-      - name: Check PostgreSQL Status
-        run: |
-          psql -h localhost -U db_user -d users -c "SELECT 'PostgreSQL is running' as status" || exit 1
-
       - name: Run migrations
         run: make migrateup_users
 
