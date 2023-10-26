@@ -3,8 +3,27 @@ info:
   title: User Microservice API
   version: 1.0.0
   description: API for user registration and management.
-
 paths:
+  /user/{user_id}:
+    get:
+      summary: Get User Data by user_id
+      description: Retrieve user data by user_id.
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          description: The user's ID to retrieve.
+          required: true
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: User data retrieved successfully
+          schema:
+            $ref: '#/definitions/User'
+        '404':
+          description: User not found
   /signup:
     post:
       summary: User Registration
@@ -75,3 +94,21 @@ paths:
                 description: Authentication token for the user's session
         '401':
           description: Unauthorized. Invalid credentials
+definitions:
+  User:
+    type: object
+    properties:
+      username:
+        type: string
+        description: The username of the user.
+      email:
+        type: string
+        format: email
+        description: The email address of the user.
+      phone_number:
+        type: string
+        description: The phone number of the user.
+      role:
+        type: string
+        description: The role or permission level of the user.
+
