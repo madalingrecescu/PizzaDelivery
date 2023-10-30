@@ -3,10 +3,10 @@ package main
 import (
 	"database/sql"
 	_ "github.com/lib/pq"
+	db "github.com/madalingrecescu/PizzaDelivery/internal/db/sqlc_users"
+	"github.com/madalingrecescu/PizzaDelivery/internal/handlers/user_handlers"
+	"github.com/madalingrecescu/PizzaDelivery/internal/util"
 	"log"
-	"pizzeria/internal/api"
-	db "pizzeria/internal/sqlc_users"
-	"pizzeria/internal/util"
 )
 
 func main() {
@@ -20,7 +20,7 @@ func main() {
 	}
 
 	store := db.NewStore(conn)
-	server := api.NewServer(store)
+	server := user_handlers.NewServer(store)
 
 	err = server.Start(config.UsersServerAdress)
 	if err != nil {

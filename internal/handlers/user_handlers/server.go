@@ -1,18 +1,18 @@
-package api
+package user_handlers
 
 import (
 	"github.com/gin-gonic/gin"
-	db "pizzeria/internal/sqlc_users"
+	db "github.com/madalingrecescu/PizzaDelivery/internal/db/sqlc_users"
 )
 
 // Server serves HTTP requests for our users service
 type Server struct {
-	store  *db.Store
+	store  db.Store
 	router *gin.Engine
 }
 
-// NewServer creates a new HTTP server and setuup routing
-func NewServer(store *db.Store) *Server {
+// NewServer creates a new HTTP server and setup routing
+func NewServer(store db.Store) *Server {
 	server := &Server{store: store}
 	router := gin.Default()
 

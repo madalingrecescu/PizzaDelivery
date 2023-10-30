@@ -10,7 +10,7 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"pizzeria/internal/swagger/client/users"
+	"github.com/madalingrecescu/PizzaDelivery/internal/swagger/client/users"
 )
 
 // Default user microservice API HTTP client.

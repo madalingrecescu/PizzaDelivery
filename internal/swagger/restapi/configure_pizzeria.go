@@ -10,29 +10,29 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	"pizzeria/internal/swagger/restapi/operations"
-	"pizzeria/internal/swagger/restapi/operations/users"
+	"github.com/madalingrecescu/PizzaDelivery/internal/swagger/restapi/operations"
+	"github.com/madalingrecescu/PizzaDelivery/internal/swagger/restapi/operations/users"
 )
 
 //go:generate swagger generate server --target ../../swagger --name Pizzeria --spec ../../../configs/swagger/users_swagger.yaml --principal interface{}
 
 func configureFlags(api *operations.PizzeriaAPI) {
-	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
+	// handlers.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
 }
 
 func configureAPI(api *operations.PizzeriaAPI) http.Handler {
-	// configure the api here
+	// configure the handlers here
 	api.ServeError = errors.ServeError
 
 	// Set your custom logger if needed. Default one is log.Printf
 	// Expected interface func(string, ...interface{})
 	//
 	// Example:
-	// api.Logger = log.Printf
+	// handlers.Logger = log.Printf
 
 	api.UseSwaggerUI()
 	// To continue using redoc as your UI, uncomment the following line
-	// api.UseRedoc()
+	// handlers.UseRedoc()
 
 	api.JSONConsumer = runtime.JSONConsumer()
 

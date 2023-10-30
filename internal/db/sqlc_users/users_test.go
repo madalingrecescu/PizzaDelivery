@@ -2,17 +2,20 @@ package db
 
 import (
 	"context"
-	"pizzeria/internal/util"
+	"github.com/madalingrecescu/PizzaDelivery/internal/util"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 func createRandomAccount(t *testing.T) User {
+	hashedPassword, err := util.HashPassword(util.RandomPass(6))
+	require.NoError(t, err)
+
 	arg := CreateAccountParams{
 		Username:       util.RandomNameOrEmail(5, false),
 		Email:          util.RandomNameOrEmail(5, true),
-		HashedPassword: util.RandomPass(8),
+		HashedPassword: hashedPassword,
 		PhoneNumber:    util.RandomPhoneNumber(10),
 	}
 

@@ -19,7 +19,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"pizzeria/internal/swagger/restapi/operations/users"
+	"github.com/madalingrecescu/PizzaDelivery/internal/swagger/restapi/operations/users"
 )
 
 // NewPizzeriaAPI creates a new Pizzeria instance
@@ -246,7 +246,7 @@ func (o *PizzeriaAPI) HandlerFor(method, path string) (http.Handler, bool) {
 	return h, ok
 }
 
-// Context returns the middleware context for the pizzeria API
+// Context returns the middleware context for the PizzaDelivery API
 func (o *PizzeriaAPI) Context() *middleware.Context {
 	if o.context == nil {
 		o.context = middleware.NewRoutableContext(o.spec, o, nil)
@@ -272,7 +272,7 @@ func (o *PizzeriaAPI) initHandlerCache() {
 }
 
 // Serve creates a http handler to serve the API over HTTP
-// can be used directly in http.ListenAndServe(":8000", api.Serve(nil))
+// can be used directly in http.ListenAndServe(":8000", handlers.Serve(nil))
 func (o *PizzeriaAPI) Serve(builder middleware.Builder) http.Handler {
 	o.Init()
 
