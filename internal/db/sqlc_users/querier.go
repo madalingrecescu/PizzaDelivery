@@ -11,6 +11,7 @@ import (
 type Querier interface {
 	CreateAccount(ctx context.Context, arg CreateAccountParams) (User, error)
 	GetAccount(ctx context.Context, userID int32) (User, error)
+	GetAccountByUsername(ctx context.Context, username string) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

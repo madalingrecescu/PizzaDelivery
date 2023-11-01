@@ -1,27 +1,46 @@
 package user_handlers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	db "github.com/madalingrecescu/PizzaDelivery/internal/db/sqlc_users"
+	"github.com/madalingrecescu/PizzaDelivery/internal/token"
+	"github.com/madalingrecescu/PizzaDelivery/internal/util"
 )
 
 // Server serves HTTP requests for our users service
 type Server struct {
-	store  db.Store
-	router *gin.Engine
+	config     util.Config
+	store      db.Store
+	tokenMaker token.Maker
+	router     *gin.Engine
 }
 
 // NewServer creates a new HTTP server and setup routing
-func NewServer(store db.Store) *Server {
-	server := &Server{store: store}
+func NewServer(config util.Config, store db.Store) (*Server, error) {
+	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("cannot create token maker: %w", err)
+	}
+	server := &Server{
+		config:     config,
+		store:      store,
+		tokenMaker: tokenMaker,
+	}
+
+	server.setupRouter()
+	return server, nil
+}
+
+func (server *Server) setupRouter() {
 	router := gin.Default()
 
-	//add routes to router
 	router.POST("/signup", server.createAccount)
 	router.GET("/user/:id", server.getAccount)
+	router.POST("/login", server.loginUser)
 
 	server.router = router
-	return server
+
 }
 
 // Start runs the HTTP server on a specific address

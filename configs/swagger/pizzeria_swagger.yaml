@@ -1,0 +1,146 @@
+swagger: '2.0'
+info:
+  title: Pizzeria Microservice API
+  version: 1.0.0
+  description: API for managing pizzas, shopping cart, and orders in a pizzeria.
+
+paths:
+  /pizzas:
+    get:
+      summary: Get all Pizzas
+      description: Retrieve a list of all available pizzas.
+      tags:
+        - Pizzas
+      responses:
+        '200':
+          description: List of available pizzas
+
+    post:
+      summary: Add a Pizza
+      description: Add a new pizza to the menu (Admin role required)
+      tags:
+        - Pizzas
+      security:
+        - adminAuth: []
+      responses:
+        '201':
+          description: Pizza added successfully
+        '401':
+          description: Unauthorized
+
+  /pizzas/{pizza_name}:
+    get:
+      summary: Get Pizza by Name
+      description: Retrieve pizza details by name.
+      tags:
+        - Pizzas
+      parameters:
+        - name: pizza_name
+          in: path
+          description: Name of the pizza to retrieve
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Details of the requested pizza
+        '404':
+          description: Pizza not found
+
+    put:
+      summary: Edit a Pizza
+      description: Update details of a pizza (Admin role required)
+      tags:
+        - Pizzas
+      security:
+        - adminAuth: []
+      parameters:
+        - name: pizza_name
+          in: path
+          description: Name of the pizza to update
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Pizza details updated successfully
+        '401':
+          description: Unauthorized
+
+    delete:
+      summary: Delete a Pizza
+      description: Remove a pizza from the menu (Admin role required)
+      tags:
+        - Pizzas
+      security:
+        - adminAuth: []
+      parameters:
+        - name: pizza_name
+          in: path
+          description: Name of the pizza to delete
+          required: true
+          type: string
+      responses:
+        '204':
+          description: Pizza deleted successfully
+        '401':
+          description: Unauthorized
+
+  /cart:
+    post:
+      summary: Add Item to Cart
+      description: Add a pizza to the shopping cart
+      tags:
+        - Shopping Cart
+      parameters:
+        - $ref: "#/parameters/authHeader"
+        - name: pizza_name
+          in: body
+          description: Name of the pizza to add to the cart
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Pizza added to the cart successfully
+        '404':
+          description: Pizza not found
+
+    delete:
+      summary: Remove Item from Cart
+      description: Remove a pizza from the shopping cart
+      tags:
+        - Shopping Cart
+      parameters:
+        - $ref: "#/parameters/authHeader"
+        - name: pizza_name
+          in: body
+          description: Name of the pizza to remove from the cart
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Pizza removed from the cart successfully
+        '404':
+          description: Pizza not found in the cart
+
+  /order:
+    post:
+      summary: Place Order
+      description: Place an order for the items in the shopping cart
+      parameters:
+        - $ref: "#/parameters/authHeader"
+      tags:
+        - Orders
+      responses:
+        '201':
+          description: Order placed successfully
+        '400':
+          description: Bad request
+
+parameters:
+  authHeader:
+    name: Authorization
+    in: header
+    description: Bearer authorization header
+    required: true
+    type: string

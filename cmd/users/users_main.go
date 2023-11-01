@@ -20,7 +20,10 @@ func main() {
 	}
 
 	store := db.NewStore(conn)
-	server := user_handlers.NewServer(store)
+	server, err := user_handlers.NewServer(config, store)
+	if err != nil {
+		log.Fatal("Cannot create server: ", err)
+	}
 
 	err = server.Start(config.UsersServerAdress)
 	if err != nil {
