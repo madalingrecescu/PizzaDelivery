@@ -2,9 +2,9 @@ package db
 
 import (
 	"database/sql"
+	"github.com/madalingrecescu/PizzaDelivery/internal/util"
 	"log"
 	"os"
-	"pizzeria/internal/util"
 	"testing"
 
 	_ "github.com/lib/pq"
@@ -14,7 +14,7 @@ var testQueries *Queries
 var testDB *sql.DB
 
 func TestMain(m *testing.M) {
-	config, err := util.LoadConfig("../")
+	config, err := util.LoadConfig("../..")
 	if err != nil {
 		log.Fatalln("cannot load config: ", err)
 	}

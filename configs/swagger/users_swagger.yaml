@@ -22,8 +22,12 @@ paths:
           description: User data retrieved successfully
           schema:
             $ref: '#/definitions/User'
+        '400':
+          description: Bad request
         '404':
           description: User not found
+        '500':
+          description: Internal server error
   /signup:
     post:
       summary: User Registration
@@ -55,10 +59,14 @@ paths:
       responses:
         '201':
           description: User registered successfully
+          schema:
+            $ref: '#/definitions/User'
         '400':
           description: Bad request. Invalid input data
         '409':
           description: Conflict. User already exists
+        '500':
+          description: Internal server error
   /login:
     post:
       summary: User Login
@@ -94,6 +102,8 @@ paths:
                 description: Authentication token for the user's session
         '401':
           description: Unauthorized. Invalid credentials
+        '500':
+          description: Internal server error
 definitions:
   User:
     type: object
@@ -108,7 +118,4 @@ definitions:
       phone_number:
         type: string
         description: The phone number of the user.
-      role:
-        type: string
-        description: The role or permission level of the user.
 

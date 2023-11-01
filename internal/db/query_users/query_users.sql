@@ -12,3 +12,7 @@ INSERT INTO users (
 -- name: GetAccount :one
 SELECT * FROM users
 WHERE user_id = $1 LIMIT 1;
+
+-- name: GetAccountByUsername :one
+SELECT * FROM users
+WHERE username = $1 LIMIT 1;

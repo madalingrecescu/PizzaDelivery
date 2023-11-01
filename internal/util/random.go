@@ -14,6 +14,11 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
+// RandomInt generates a random integer between min and max
+func RandomInt(min, max int32) int32 {
+	return min + rand.Int31n(max-min+1)
+}
+
 // RandomNameOrEmail generates a random name or a random email if the isEmail bool is true of length n
 func RandomNameOrEmail(n int, isEmail bool) string {
 	var sb strings.Builder
