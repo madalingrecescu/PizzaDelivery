@@ -27,11 +27,11 @@ func (server *Server) setupRouter() {
 	router := gin.Default()
 
 	router.GET("/pizzas", server.getAllPizzas)
-	router.GET("/pizzas/:id", server.getPizzaById)
-	router.GET("/pizzas/:name", server.getPizzaByName)
-	router.PUT("/pizzas/:name", server.updatePizza)
+	router.GET("/pizzas/id/:id", server.getPizzaById)
+	router.GET("/pizzas/name/:name", server.getPizzaByName)
+	router.PUT("/pizzas/name/:name", server.updatePizza)
 	router.POST("/pizzas", server.createPizza)
-	router.DELETE("/pizzas/:name", server.deletePizza)
+	router.DELETE("/pizzas/id/:id", server.deletePizza)
 
 	server.router = router
 
