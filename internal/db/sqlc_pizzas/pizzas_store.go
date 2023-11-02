@@ -17,9 +17,9 @@ type SQLStore struct {
 
 // NewStore creates a bew store
 
-func NewStore(db *sql.DB) Store {
-	return &SQLStore{
-		db:      db,
-		Queries: New(db),
-	}
-}
+//func NewStore(db *sql.DB) Store {
+//	return &SQLStore{
+//		db:      db,
+//		Queries: New(db),
+//	}
+//}
