@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      postgres:
+      postgres-users:
         image: postgres
         env:
           POSTGRES_USER: db_user
@@ -25,6 +25,21 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
+      postgres-pizzas:
+        image: postgres
+        env:
+          POSTGRES_USER: db_user
+          POSTGRES_PASSWORD: db_pass
+          POSTGRES_DB: pizzas
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v3
 
@@ -41,6 +56,9 @@ jobs:
 
       - name: Run migrations
         run: make migrateup_users
+
+      - name: Run migrations
+        run: make migrateup_pizzas
 
       - name: Test
         run: make test

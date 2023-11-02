@@ -1,13 +1,12 @@
-package db
+package pizzas_db
 
 import (
 	"database/sql"
+	_ "github.com/lib/pq"
 	"github.com/madalingrecescu/PizzaDelivery/internal/util"
 	"log"
 	"os"
 	"testing"
-
-	_ "github.com/lib/pq"
 )
 
 var testQueries *Queries
@@ -18,7 +17,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatalln("cannot load config: ", err)
 	}
-	testDB, err = sql.Open(config.DBDriver, config.DBSource)
+	testDB, err = sql.Open(config.DBDriverPizzas, config.DBSourcePizzas)
 	if err != nil {
 		log.Fatalln("cannot connect to db: ", err)
 	}

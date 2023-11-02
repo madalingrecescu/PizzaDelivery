@@ -14,7 +14,7 @@ func main() {
 	if err != nil {
 		log.Fatal("cannot load config: ", err)
 	}
-	conn, err := sql.Open(config.DBDriver, config.DBSource)
+	conn, err := sql.Open(config.DBDriverUsers, config.DBSourceUsers)
 	if err != nil {
 		log.Fatalln("cannot connect to db: ", err)
 	}
@@ -25,7 +25,7 @@ func main() {
 		log.Fatal("Cannot create server: ", err)
 	}
 
-	err = server.Start(config.UsersServerAdress)
+	err = server.Start(config.UsersServerAddress)
 	if err != nil {
 		log.Fatalln("cannot start server: ", err)
 	}

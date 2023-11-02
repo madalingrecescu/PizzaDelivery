@@ -104,6 +104,59 @@ paths:
           description: Unauthorized. Invalid credentials
         '500':
           description: Internal server error
+
+  /cart:
+    post:
+      summary: Add Item to Shopping Cart
+      description: Add a pizzas to the shopping cart
+      tags:
+        - Shopping Cart
+      parameters:
+        - $ref: "#/parameters/authHeader"
+        - name: pizza_name
+          in: body
+          description: Name of the pizzas to add to the cart
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Pizza added to the cart successfully
+        '404':
+          description: Pizza not found in the menu
+
+    delete:
+      summary: Remove Item from Shopping Cart
+      description: Remove a pizzas from the shopping cart
+      tags:
+        - Shopping Cart
+      parameters:
+        - $ref: "#/parameters/authHeader"
+        - name: pizza_name
+          in: body
+          description: Name of the pizzas to remove from the cart
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Pizza removed from the cart successfully
+        '404':
+          description: Pizza not found in the cart
+  /order:
+    post:
+      summary: Place Order
+      description: Place an order for the items in the shopping cart
+      parameters:
+        - $ref: "#/parameters/authHeader"
+      tags:
+        - Orders
+      responses:
+        '202':
+          description: Order request accepted for processing
+        '400':
+          description: Bad request
+
 definitions:
   User:
     type: object
@@ -118,4 +171,12 @@ definitions:
       phone_number:
         type: string
         description: The phone number of the user.
+
+parameters:
+  authHeader:
+    name: Authorization
+    in: header
+    description: Bearer authorization header
+    required: true
+    type: string
 

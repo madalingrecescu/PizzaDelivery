@@ -2,11 +2,19 @@
 // versions:
 //   sqlc v1.22.0
 
-package db
+package users_db
 
 import (
 	"database/sql"
 )
+
+type ShoppingCart struct {
+	ShoppingCartID int32         `json:"shoppingCartId"`
+	UserID         sql.NullInt32 `json:"userId"`
+	PizzaName      string        `json:"pizzaName"`
+	PizzaPrice     string        `json:"pizzaPrice"`
+	PizzaQuantity  int32         `json:"pizzaQuantity"`
+}
 
 type User struct {
 	UserID         int32          `json:"userId"`

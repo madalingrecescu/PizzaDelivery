@@ -1,0 +1,88 @@
+swagger: '2.0'
+info:
+  title: Pizza Microservice API
+  version: 1.0.0
+  description: API for managing pizzas, shopping cart, and orders in a pizzas.
+
+paths:
+  /pizzas:
+    get:
+      summary: Get all Pizzas
+      description: Retrieve a list of all available pizzas.
+      tags:
+        - Pizzas
+      responses:
+        '200':
+          description: List of available pizzas
+
+    post:
+      summary: Add a Pizza
+      description: Add a new pizzas to the menu (Admin role required)
+      tags:
+        - Pizzas
+      responses:
+        '201':
+          description: Pizza added successfully
+        '401':
+          description: Unauthorized
+
+  /pizzas/{pizza_name}:
+    get:
+      summary: Get Pizza by Name
+      description: Retrieve pizzas details by name.
+      tags:
+        - Pizzas
+      parameters:
+        - name: pizza_name
+          in: path
+          description: Name of the pizzas to retrieve
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Details of the requested pizzas
+        '404':
+          description: Pizza not found
+
+    put:
+      summary: Edit a Pizza
+      description: Update details of a pizzas (Admin role required)
+      tags:
+        - Pizzas
+      parameters:
+        - name: pizza_name
+          in: path
+          description: Name of the pizzas to update
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Pizza details updated successfully
+        '401':
+          description: Unauthorized
+
+    delete:
+      summary: Delete a Pizza
+      description: Remove a pizzas from the menu (Admin role required)
+      tags:
+        - Pizzas
+      parameters:
+        - name: pizza_name
+          in: path
+          description: Name of the pizzas to delete
+          required: true
+          type: string
+      responses:
+        '204':
+          description: Pizza deleted successfully
+        '401':
+          description: Unauthorized
+
+
+parameters:
+  authHeader:
+    name: Authorization
+    in: header
+    description: Bearer authorization header
+    required: true
+    type: string
