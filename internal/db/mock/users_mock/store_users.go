@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	db "github.com/madalingrecescu/PizzaDelivery/internal/db/sqlc_users"
+	users_db "github.com/madalingrecescu/PizzaDelivery/internal/db/sqlc_users"
 )
 
 // MockStore is a mock of Store interface.
@@ -36,10 +36,10 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 }
 
 // CreateAccount mocks base method.
-func (m *MockStore) CreateAccount(arg0 context.Context, arg1 db.CreateAccountParams) (db.User, error) {
+func (m *MockStore) CreateAccount(arg0 context.Context, arg1 users_db.CreateAccountParams) (users_db.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateAccount", arg0, arg1)
-	ret0, _ := ret[0].(db.User)
+	ret0, _ := ret[0].(users_db.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -51,10 +51,10 @@ func (mr *MockStoreMockRecorder) CreateAccount(arg0, arg1 interface{}) *gomock.C
 }
 
 // GetAccount mocks base method.
-func (m *MockStore) GetAccount(arg0 context.Context, arg1 int32) (db.User, error) {
+func (m *MockStore) GetAccount(arg0 context.Context, arg1 int32) (users_db.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAccount", arg0, arg1)
-	ret0, _ := ret[0].(db.User)
+	ret0, _ := ret[0].(users_db.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -66,10 +66,10 @@ func (mr *MockStoreMockRecorder) GetAccount(arg0, arg1 interface{}) *gomock.Call
 }
 
 // GetAccountByUsername mocks base method.
-func (m *MockStore) GetAccountByUsername(arg0 context.Context, arg1 string) (db.User, error) {
+func (m *MockStore) GetAccountByUsername(arg0 context.Context, arg1 string) (users_db.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAccountByUsername", arg0, arg1)
-	ret0, _ := ret[0].(db.User)
+	ret0, _ := ret[0].(users_db.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
