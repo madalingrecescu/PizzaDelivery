@@ -10,7 +10,7 @@ INSERT INTO pizzas (
 
 -- name: GetAllPizzas :many
 SELECT * FROM pizzas
-Order By id;
+Order By pizza_id;
 
 -- name: GetPizzaById :one
 SELECT * FROM pizzas
@@ -20,4 +20,12 @@ WHERE pizza_id = $1 LIMIT 1;
 SELECT * FROM pizzas
 WHERE name = $1 LIMIT 1;
 
--- name:
+-- name: UpdatePizza :one
+UPDATE pizzas
+SET name = $2, description = $3, price = $4
+WHERE pizza_id = $1
+RETURNING *;
+
+-- name: DeletePizza :exec
+DELETE FROM pizzas
+WHERE pizza_id = $1;
