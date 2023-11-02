@@ -12,21 +12,21 @@ import (
 func main() {
 	config, err := util.LoadConfig("internal")
 	if err != nil {
-		log.Fatal("cannot load config users: ", err)
+		log.Fatal("cannot load config pizzas: ", err)
 	}
-	conn, err := sql.Open(config.DBDriverUsers, config.DBSourceUsers)
+	conn, err := sql.Open(config.DBDriverPizzas, config.DBSourcePizzas)
 	if err != nil {
-		log.Fatalln("cannot connect to db users: ", err)
+		log.Fatalln("cannot connect to db pizzas: ", err)
 	}
 
 	store := db.NewStore(conn)
 	server, err := user_handlers.NewServer(config, store)
 	if err != nil {
-		log.Fatal("Cannot create server users: ", err)
+		log.Fatal("Cannot create server pizzas: ", err)
 	}
 
-	err = server.Start(config.UsersServerAddress)
+	err = server.Start(config.PizzasServerAddress)
 	if err != nil {
-		log.Fatalln("cannot start server users: ", err)
+		log.Fatalln("cannot start server pizzas: ", err)
 	}
 }

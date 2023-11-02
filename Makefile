@@ -35,8 +35,12 @@ test:
 	go test -v -cover ./...
 users:
 	go run cmd/users/users_main.go
+pizzas:
+	go run cmd/pizzas/pizzas_main.go
 
 mock_users:
-	mockgen -package mockdb_users -destination internal/db/mock/store.go github.com/madalingrecescu/PizzaDelivery/internal/db/sqlc_users Store
+	mockgen -package mockdb_users -destination internal/db/mock/users_mock/store_users.go github.com/madalingrecescu/PizzaDelivery/internal/db/sqlc_users Store
+mock_pizzas:
+	mockgen -package mockdb_pizzas -destination internal/db/mock/pizzas_mock/store_pizzas.go github.com/madalingrecescu/PizzaDelivery/internal/db/sqlc_pizzas Store
 
-.PHONY:mock_users users createdb_pizzas createdb_users dropdb_pizzas dropdb_user migratedown_pizzas migratedown_users migrateup_pizzas migrateup_users generate_go_server_code_users generate_go_client_code_users sqlc test
+.PHONY:pizzas mock_pizzas mock_users users createdb_pizzas createdb_users dropdb_pizzas dropdb_user migratedown_pizzas migratedown_users migrateup_pizzas migrateup_users generate_go_server_code_users generate_go_client_code_users sqlc test
