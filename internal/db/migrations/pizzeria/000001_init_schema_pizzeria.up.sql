@@ -4,5 +4,3 @@ CREATE TABLE "pizzas" (
                           "description" TEXT,
                           "price" DOUBLE PRECISION NOT NULL
 );
-
-ALTER TABLE "pizza_orders" ADD FOREIGN KEY ("pizza_id") REFERENCES "pizzas" ("pizza_id");
