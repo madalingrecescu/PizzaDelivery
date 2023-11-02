@@ -108,14 +108,14 @@ paths:
   /cart:
     post:
       summary: Add Item to Shopping Cart
-      description: Add a pizza to the shopping cart
+      description: Add a pizzas to the shopping cart
       tags:
         - Shopping Cart
       parameters:
         - $ref: "#/parameters/authHeader"
         - name: pizza_name
           in: body
-          description: Name of the pizza to add to the cart
+          description: Name of the pizzas to add to the cart
           required: true
           schema:
             type: string
@@ -127,14 +127,14 @@ paths:
 
     delete:
       summary: Remove Item from Shopping Cart
-      description: Remove a pizza from the shopping cart
+      description: Remove a pizzas from the shopping cart
       tags:
         - Shopping Cart
       parameters:
         - $ref: "#/parameters/authHeader"
         - name: pizza_name
           in: body
-          description: Name of the pizza to remove from the cart
+          description: Name of the pizzas to remove from the cart
           required: true
           schema:
             type: string

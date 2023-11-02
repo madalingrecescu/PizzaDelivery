@@ -3,7 +3,7 @@ services:
   articles_db:
     image: postgres
     restart: always
-    container_name: pizzeria_db
+    container_name: pizzas_db
     environment:
       - POSTGRES_USER=db_user
       - POSTGRES_PASSWORD=db_pass

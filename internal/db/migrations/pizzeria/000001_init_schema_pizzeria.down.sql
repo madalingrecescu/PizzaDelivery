@@ -1,2 +1,0 @@
-DROP TABLE IF EXISTS pizzas;
-DROP TABLE IF EXISTS pizza_orders;

@@ -1,4 +1,4 @@
-package db
+package users_db
 
 import (
 	"context"
