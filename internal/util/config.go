@@ -5,12 +5,15 @@ import (
 	"time"
 )
 
-// Config stores all configuration of the app
+// ConfigUser stores all configuration of the app
 // The values are read by viper from a config file or environment variables
 type Config struct {
-	DBDriver            string        `mapstructure:"DB_DRIVER"`
-	DBSource            string        `mapstructure:"DB_SOURCE"`
-	UsersServerAdress   string        `mapstructure:"USER_SERVER_ADDRESS"`
+	DBDriverUsers       string        `mapstructure:"DB_DRIVER_USERS"`
+	DBSourceUsers       string        `mapstructure:"DB_SOURCE_USERS"`
+	DBDriverPizzas      string        `mapstructure:"DB_DRIVER_PIZZAS"`
+	DBSourcePizzas      string        `mapstructure:"DB_SOURCE_PIZZAS"`
+	UsersServerAddress  string        `mapstructure:"USER_SERVER_ADDRESS"`
+	PizzasServerAddress string        `mapstructure:"PIZZAS_SERVER_ADDRESS"`
 	TokenSymmetricKey   string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
 	AccessTokenDuration time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
 }

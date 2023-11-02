@@ -7,7 +7,6 @@ package pizzas_db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createPizza = `-- name: CreatePizza :one
@@ -22,9 +21,9 @@ INSERT INTO pizzas (
 `
 
 type CreatePizzaParams struct {
-	Name        string         `json:"name"`
-	Description sql.NullString `json:"description"`
-	Price       float64        `json:"price"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
 }
 
 func (q *Queries) CreatePizza(ctx context.Context, arg CreatePizzaParams) (Pizza, error) {
@@ -124,10 +123,10 @@ RETURNING pizza_id, name, description, price
 `
 
 type UpdatePizzaParams struct {
-	PizzaID     int32          `json:"pizzaId"`
-	Name        string         `json:"name"`
-	Description sql.NullString `json:"description"`
-	Price       float64        `json:"price"`
+	PizzaID     int32   `json:"pizzaId"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
 }
 
 func (q *Queries) UpdatePizza(ctx context.Context, arg UpdatePizzaParams) (Pizza, error) {

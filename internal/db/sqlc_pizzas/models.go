@@ -4,13 +4,11 @@
 
 package pizzas_db
 
-import (
-	"database/sql"
-)
+import ()
 
 type Pizza struct {
-	PizzaID     int32          `json:"pizzaId"`
-	Name        string         `json:"name"`
-	Description sql.NullString `json:"description"`
-	Price       float64        `json:"price"`
+	PizzaID     int32   `json:"pizzaId"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
 }
