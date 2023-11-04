@@ -29,3 +29,48 @@ RETURNING *;
 -- name: DeletePizza :exec
 DELETE FROM pizzas
 WHERE pizza_id = $1;
+
+-- name: CreateShoppingCart :one
+INSERT INTO shopping_cart (
+    user_id
+) VALUES (
+          $1
+         ) RETURNING *;
+
+-- name: CreatePizzaOrder :one
+INSERT INTO pizza_order (
+    shopping_cart_id,
+    pizza_name,
+    pizza_price,
+    quantity
+
+) VALUES (
+             $1, $2, $3, $4
+         ) RETURNING *;
+
+-- name: AddQuantityToOrderForExistingPizza :one
+UPDATE pizza_order
+SET quantity = quantity + 1
+WHERE pizza_name = $1 AND shopping_cart_id = $2
+    RETURNING *;
+
+-- name: SubtractQuantityOfExistingPizzaFromOrder :one
+UPDATE pizza_order
+SET quantity = quantity - 1
+WHERE pizza_name = $1 AND shopping_cart_id = $2
+    RETURNING *;
+
+-- name: GetAllOrdersByShoppingCartID :many
+SELECT *
+FROM pizza_order
+WHERE shopping_cart_id = $1;
+
+
+-- name: DeleteAllPizzasWithTheSameNameFromShoppingCart :exec
+DELETE FROM pizza_order
+WHERE shopping_cart_id = $1 AND pizza_name = $2;
+
+-- name: GetPizzaOrderByNameFromShoppingCart :one
+SELECT *
+FROM pizza_order
+WHERE shopping_cart_id = $1 AND pizza_name = $2 LIMIT 1;

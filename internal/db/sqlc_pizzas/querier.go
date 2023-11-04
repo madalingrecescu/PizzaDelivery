@@ -9,11 +9,18 @@ import (
 )
 
 type Querier interface {
+	AddQuantityToOrderForExistingPizza(ctx context.Context, arg AddQuantityToOrderForExistingPizzaParams) (PizzaOrder, error)
 	CreatePizza(ctx context.Context, arg CreatePizzaParams) (Pizza, error)
+	CreatePizzaOrder(ctx context.Context, arg CreatePizzaOrderParams) (PizzaOrder, error)
+	CreateShoppingCart(ctx context.Context, userID int32) (ShoppingCart, error)
+	DeleteAllPizzasWithTheSameNameFromShoppingCart(ctx context.Context, arg DeleteAllPizzasWithTheSameNameFromShoppingCartParams) error
 	DeletePizza(ctx context.Context, pizzaID int32) error
+	GetAllOrdersByShoppingCartID(ctx context.Context, shoppingCartID int32) ([]PizzaOrder, error)
 	GetAllPizzas(ctx context.Context) ([]Pizza, error)
 	GetPizzaById(ctx context.Context, pizzaID int32) (Pizza, error)
 	GetPizzaByName(ctx context.Context, name string) (Pizza, error)
+	GetPizzaOrderByNameFromShoppingCart(ctx context.Context, arg GetPizzaOrderByNameFromShoppingCartParams) (PizzaOrder, error)
+	SubtractQuantityOfExistingPizzaFromOrder(ctx context.Context, arg SubtractQuantityOfExistingPizzaFromOrderParams) (PizzaOrder, error)
 	UpdatePizza(ctx context.Context, arg UpdatePizzaParams) (Pizza, error)
 }
 

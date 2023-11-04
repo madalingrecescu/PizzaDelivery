@@ -107,8 +107,8 @@ paths:
 
   /cart:
     post:
-      summary: Add Item to Shopping Cart
-      description: Add a pizzas to the shopping cart
+      summary: Add pizza to Shopping Cart
+      description: Add a pizza to the shopping cart
       tags:
         - Shopping Cart
       parameters:
@@ -126,8 +126,8 @@ paths:
           description: Pizza not found in the menu
 
     delete:
-      summary: Remove Item from Shopping Cart
-      description: Remove a pizzas from the shopping cart
+      summary: Remove pizza from Shopping Cart
+      description: Remove a pizza from the shopping cart
       tags:
         - Shopping Cart
       parameters:
