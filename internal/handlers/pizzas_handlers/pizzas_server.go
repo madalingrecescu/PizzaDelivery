@@ -34,8 +34,8 @@ func (server *Server) setupRouter() {
 	router.DELETE("/pizzas/id/:id", server.deletePizza)
 
 	router.POST("addToOrder/:name", server.addPizzaToShoppingCart)
-	router.DELETE("DeletePizzaOrder", server.deletePizzaFromShoppingCart)
-	router.PUT("changeOrder", server.changeQuantityOfPizzas)
+	router.DELETE("deletePizzaOrder", server.deletePizzaFromShoppingCart)
+	router.PUT("changeOrderQuantity", server.changeQuantityOfPizzas)
 
 	router.POST("shoppingCart/:id", server.createShoppingCart)
 

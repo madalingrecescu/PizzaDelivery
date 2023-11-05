@@ -2,7 +2,6 @@ package pizzas_handlers
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-openapi/errors"
 	db "github.com/madalingrecescu/PizzaDelivery/internal/db/sqlc_pizzas"
@@ -183,7 +182,7 @@ func (server *Server) createShoppingCart(ctx *gin.Context) {
 
 type deletePizzaFromShoppingCartRequest struct {
 	ShoppingCartId int32  `json:"shopping_cart_id" binding:"required"`
-	PizzaName      string `json:"name" binding:"required"`
+	PizzaName      string `json:"pizza_name" binding:"required"`
 }
 
 func (server *Server) deletePizzaFromShoppingCart(ctx *gin.Context) {
@@ -217,7 +216,6 @@ func (server *Server) addPizzaToShoppingCart(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Println(req.PizzaName)
 	pizza, err := server.store.GetPizzaByName(ctx, req.PizzaName)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -227,7 +225,6 @@ func (server *Server) addPizzaToShoppingCart(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Server error"})
 		return
 	}
-	fmt.Println(req.PizzaName)
 
 	//TODO Hardcoded for example - replace this logic with actual userID retrieval
 	shoppingCartId := int32(1) // TODO Replace with real logic
@@ -244,7 +241,6 @@ func (server *Server) addPizzaToShoppingCart(ctx *gin.Context) {
 		}
 	}
 
-	fmt.Println(pizzaOrder.PizzaOrderID, " id")
 	if pizzaOrder.PizzaOrderID == 0 {
 		_, err = server.store.CreatePizzaOrder(ctx, db.CreatePizzaOrderParams{
 			ShoppingCartID: shoppingCartId,
@@ -266,11 +262,47 @@ func (server *Server) addPizzaToShoppingCart(ctx *gin.Context) {
 			return
 		}
 	}
-	fmt.Println("4")
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Pizza added to the shopping cart"})
 }
 
+type changeQuantityOfPizzasRequest struct {
+	ShoppingCartId int32  `json:"shopping_cart_id" binding:"required"`
+	PizzaName      string `json:"pizza_name" binding:"required"`
+	Quantity       int32  `json:"quantity" binding:"required,min=1"`
+}
+
 func (server *Server) changeQuantityOfPizzas(ctx *gin.Context) {
-	//todo implement
+	var req changeQuantityOfPizzasRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Could not bind the json"})
+		return
+	}
+
+	arg := db.GetPizzaOrderByNameFromShoppingCartParams{
+		ShoppingCartID: req.ShoppingCartId,
+		PizzaName:      req.PizzaName,
+	}
+	_, err := server.store.GetPizzaOrderByNameFromShoppingCart(ctx, arg)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "Pizza order not found"})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	err = server.store.UpdatePizzaQuantityInShoppingCart(ctx, db.UpdatePizzaQuantityInShoppingCartParams{
+		Quantity:       req.Quantity,
+		PizzaName:      req.PizzaName,
+		ShoppingCartID: req.ShoppingCartId,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update order"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Pizza's quantity updated successfully"})
+
 }

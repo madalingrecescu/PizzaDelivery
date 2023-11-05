@@ -321,3 +321,20 @@ func (q *Queries) UpdatePizza(ctx context.Context, arg UpdatePizzaParams) (Pizza
 	)
 	return i, err
 }
+
+const updatePizzaQuantityInShoppingCart = `-- name: UpdatePizzaQuantityInShoppingCart :exec
+UPDATE pizza_order
+SET quantity = $1
+WHERE pizza_name = $2 AND shopping_cart_id = $3
+`
+
+type UpdatePizzaQuantityInShoppingCartParams struct {
+	Quantity       int32  `json:"quantity"`
+	PizzaName      string `json:"pizzaName"`
+	ShoppingCartID int32  `json:"shoppingCartId"`
+}
+
+func (q *Queries) UpdatePizzaQuantityInShoppingCart(ctx context.Context, arg UpdatePizzaQuantityInShoppingCartParams) error {
+	_, err := q.db.ExecContext(ctx, updatePizzaQuantityInShoppingCart, arg.Quantity, arg.PizzaName, arg.ShoppingCartID)
+	return err
+}

@@ -74,3 +74,8 @@ WHERE shopping_cart_id = $1 AND pizza_name = $2;
 SELECT *
 FROM pizza_order
 WHERE shopping_cart_id = $1 AND pizza_name = $2 LIMIT 1;
+
+-- name: UpdatePizzaQuantityInShoppingCart :exec
+UPDATE pizza_order
+SET quantity = $1
+WHERE pizza_name = $2 AND shopping_cart_id = $3;

@@ -22,6 +22,7 @@ type Querier interface {
 	GetPizzaOrderByNameFromShoppingCart(ctx context.Context, arg GetPizzaOrderByNameFromShoppingCartParams) (PizzaOrder, error)
 	SubtractQuantityOfExistingPizzaFromOrder(ctx context.Context, arg SubtractQuantityOfExistingPizzaFromOrderParams) (PizzaOrder, error)
 	UpdatePizza(ctx context.Context, arg UpdatePizzaParams) (Pizza, error)
+	UpdatePizzaQuantityInShoppingCart(ctx context.Context, arg UpdatePizzaQuantityInShoppingCartParams) error
 }
 
 var _ Querier = (*Queries)(nil)
