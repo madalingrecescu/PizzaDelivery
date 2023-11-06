@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option go_package = "github.com/madalingrecescu/PizzaDelivery/gRPC";
+
+message User {
+  string username = 1;
+  string email = 2;
+  string phone_number = 3;
+}
