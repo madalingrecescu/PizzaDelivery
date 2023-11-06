@@ -4,7 +4,7 @@
 // - protoc             v4.25.0
 // source: service_pizzeria.proto
 
-package gRPC
+package pb
 
 import (
 	context "context"

@@ -29,4 +29,7 @@ func main() {
 	if err != nil {
 		log.Fatalln("cannot start server pizzas: ", err)
 	}
+
+	log.Printf("starting pizzas server at %s", config.PizzasServerAddress)
+
 }

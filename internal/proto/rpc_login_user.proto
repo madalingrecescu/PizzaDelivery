@@ -2,7 +2,7 @@ syntax = "proto3";
 
 import "user.proto";
 
-option go_package = "github.com/madalingrecescu/PizzaDelivery/gRPC";
+option go_package = "github.com/madalingrecescu/PizzaDelivery/pb";
 
 message LoginUserRequest {
   string username = 1;

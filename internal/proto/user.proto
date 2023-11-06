@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/madalingrecescu/PizzaDelivery/gRPC";
+option go_package = "github.com/madalingrecescu/PizzaDelivery/pb";
 
 message User {
   string username = 1;
