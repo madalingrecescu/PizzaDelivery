@@ -35,3 +35,6 @@ go get github.com/lib/pq
 swagger
 Used for making the openAPI specification and generating the go code from it
 We need to install the library:
+
+gRPC:
+brew install protobuf

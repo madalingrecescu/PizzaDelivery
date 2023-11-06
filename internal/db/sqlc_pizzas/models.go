@@ -12,3 +12,16 @@ type Pizza struct {
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
 }
+
+type PizzaOrder struct {
+	PizzaOrderID   int32   `json:"pizzaOrderId"`
+	ShoppingCartID int32   `json:"shoppingCartId"`
+	PizzaName      string  `json:"pizzaName"`
+	PizzaPrice     float64 `json:"pizzaPrice"`
+	Quantity       int32   `json:"quantity"`
+}
+
+type ShoppingCart struct {
+	ShoppingCartID int32 `json:"shoppingCartId"`
+	UserID         int32 `json:"userId"`
+}

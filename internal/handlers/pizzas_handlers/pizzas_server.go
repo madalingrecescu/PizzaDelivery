@@ -33,6 +33,12 @@ func (server *Server) setupRouter() {
 	router.POST("/pizzas", server.createPizza)
 	router.DELETE("/pizzas/id/:id", server.deletePizza)
 
+	router.POST("addToOrder/:name", server.addPizzaToShoppingCart)
+	router.DELETE("deletePizzaOrder", server.deletePizzaFromShoppingCart)
+	router.PUT("changeOrderQuantity", server.changeQuantityOfPizzas)
+
+	router.POST("shoppingCart/:id", server.createShoppingCart)
+
 	server.router = router
 
 }

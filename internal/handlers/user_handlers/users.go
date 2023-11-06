@@ -10,17 +10,16 @@ import (
 )
 
 type createAccountRequest struct {
-	Username       string `json:"username" binding:"required"`
-	Email          string `json:"email" binding:"required,email"`
-	HashedPassword string `json:"hashedPassword" binding:"required,min=6"`
-	PhoneNumber    string `json:"phoneNumber" binding:"required"`
+	Username    string `json:"username" binding:"required"`
+	Email       string `json:"email" binding:"required,email"`
+	Password    string `json:"password" binding:"required,min=6"`
+	PhoneNumber string `json:"phoneNumber" binding:"required"`
 }
 
 type accountResponse struct {
-	Username       string `json:"username" binding:"required"`
-	Email          string `json:"email" binding:"required,email"`
-	HashedPassword string `json:"-" binding:"required,min=6"`
-	PhoneNumber    string `json:"phoneNumber" binding:"required"`
+	Username    string `json:"username" binding:"required"`
+	Email       string `json:"email" binding:"required,email"`
+	PhoneNumber string `json:"phoneNumber" binding:"required"`
 }
 
 type userResponse struct {
@@ -44,7 +43,7 @@ func (server *Server) createAccount(ctx *gin.Context) {
 		return
 	}
 
-	hashedPassword, err := util.HashPassword(req.HashedPassword)
+	hashedPassword, err := util.HashPassword(req.Password)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -63,10 +62,9 @@ func (server *Server) createAccount(ctx *gin.Context) {
 	}
 
 	rsp := accountResponse{
-		Username:       account.Username,
-		Email:          account.Email,
-		HashedPassword: account.HashedPassword,
-		PhoneNumber:    account.PhoneNumber,
+		Username:    account.Username,
+		Email:       account.Email,
+		PhoneNumber: account.PhoneNumber,
 	}
 
 	ctx.JSON(http.StatusOK, rsp)
@@ -93,11 +91,16 @@ func (server *Server) getAccount(ctx *gin.Context) {
 	}
 
 	rsp := accountResponse{
-		Username:       account.Username,
-		Email:          account.Email,
-		HashedPassword: account.HashedPassword,
-		PhoneNumber:    account.PhoneNumber,
+		Username:    account.Username,
+		Email:       account.Email,
+		PhoneNumber: account.PhoneNumber,
 	}
+
+	//authPayload := ctx.MustGet("authorization_payload").(*token.Payload)
+	//if authPayload.Username != account.Username {
+	//	ctx.JSON(http.StatusUnauthorized, errors.New(http.StatusUnauthorized, "You are not logged into this account"))
+	//	return
+	//}
 	ctx.JSON(http.StatusOK, rsp)
 }
 

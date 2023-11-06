@@ -9,6 +9,31 @@ import (
 	"context"
 )
 
+const addQuantityToOrderForExistingPizza = `-- name: AddQuantityToOrderForExistingPizza :one
+UPDATE pizza_order
+SET quantity = quantity + 1
+WHERE pizza_name = $1 AND shopping_cart_id = $2
+    RETURNING pizza_order_id, shopping_cart_id, pizza_name, pizza_price, quantity
+`
+
+type AddQuantityToOrderForExistingPizzaParams struct {
+	PizzaName      string `json:"pizzaName"`
+	ShoppingCartID int32  `json:"shoppingCartId"`
+}
+
+func (q *Queries) AddQuantityToOrderForExistingPizza(ctx context.Context, arg AddQuantityToOrderForExistingPizzaParams) (PizzaOrder, error) {
+	row := q.db.QueryRowContext(ctx, addQuantityToOrderForExistingPizza, arg.PizzaName, arg.ShoppingCartID)
+	var i PizzaOrder
+	err := row.Scan(
+		&i.PizzaOrderID,
+		&i.ShoppingCartID,
+		&i.PizzaName,
+		&i.PizzaPrice,
+		&i.Quantity,
+	)
+	return i, err
+}
+
 const createPizza = `-- name: CreatePizza :one
 INSERT INTO pizzas (
     name,
@@ -38,6 +63,73 @@ func (q *Queries) CreatePizza(ctx context.Context, arg CreatePizzaParams) (Pizza
 	return i, err
 }
 
+const createPizzaOrder = `-- name: CreatePizzaOrder :one
+INSERT INTO pizza_order (
+    shopping_cart_id,
+    pizza_name,
+    pizza_price,
+    quantity
+
+) VALUES (
+             $1, $2, $3, $4
+         ) RETURNING pizza_order_id, shopping_cart_id, pizza_name, pizza_price, quantity
+`
+
+type CreatePizzaOrderParams struct {
+	ShoppingCartID int32   `json:"shoppingCartId"`
+	PizzaName      string  `json:"pizzaName"`
+	PizzaPrice     float64 `json:"pizzaPrice"`
+	Quantity       int32   `json:"quantity"`
+}
+
+func (q *Queries) CreatePizzaOrder(ctx context.Context, arg CreatePizzaOrderParams) (PizzaOrder, error) {
+	row := q.db.QueryRowContext(ctx, createPizzaOrder,
+		arg.ShoppingCartID,
+		arg.PizzaName,
+		arg.PizzaPrice,
+		arg.Quantity,
+	)
+	var i PizzaOrder
+	err := row.Scan(
+		&i.PizzaOrderID,
+		&i.ShoppingCartID,
+		&i.PizzaName,
+		&i.PizzaPrice,
+		&i.Quantity,
+	)
+	return i, err
+}
+
+const createShoppingCart = `-- name: CreateShoppingCart :one
+INSERT INTO shopping_cart (
+    user_id
+) VALUES (
+          $1
+         ) RETURNING shopping_cart_id, user_id
+`
+
+func (q *Queries) CreateShoppingCart(ctx context.Context, userID int32) (ShoppingCart, error) {
+	row := q.db.QueryRowContext(ctx, createShoppingCart, userID)
+	var i ShoppingCart
+	err := row.Scan(&i.ShoppingCartID, &i.UserID)
+	return i, err
+}
+
+const deleteAllPizzasWithTheSameNameFromShoppingCart = `-- name: DeleteAllPizzasWithTheSameNameFromShoppingCart :exec
+DELETE FROM pizza_order
+WHERE shopping_cart_id = $1 AND pizza_name = $2
+`
+
+type DeleteAllPizzasWithTheSameNameFromShoppingCartParams struct {
+	ShoppingCartID int32  `json:"shoppingCartId"`
+	PizzaName      string `json:"pizzaName"`
+}
+
+func (q *Queries) DeleteAllPizzasWithTheSameNameFromShoppingCart(ctx context.Context, arg DeleteAllPizzasWithTheSameNameFromShoppingCartParams) error {
+	_, err := q.db.ExecContext(ctx, deleteAllPizzasWithTheSameNameFromShoppingCart, arg.ShoppingCartID, arg.PizzaName)
+	return err
+}
+
 const deletePizza = `-- name: DeletePizza :exec
 DELETE FROM pizzas
 WHERE pizza_id = $1
@@ -46,6 +138,41 @@ WHERE pizza_id = $1
 func (q *Queries) DeletePizza(ctx context.Context, pizzaID int32) error {
 	_, err := q.db.ExecContext(ctx, deletePizza, pizzaID)
 	return err
+}
+
+const getAllOrdersByShoppingCartID = `-- name: GetAllOrdersByShoppingCartID :many
+SELECT pizza_order_id, shopping_cart_id, pizza_name, pizza_price, quantity
+FROM pizza_order
+WHERE shopping_cart_id = $1
+`
+
+func (q *Queries) GetAllOrdersByShoppingCartID(ctx context.Context, shoppingCartID int32) ([]PizzaOrder, error) {
+	rows, err := q.db.QueryContext(ctx, getAllOrdersByShoppingCartID, shoppingCartID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []PizzaOrder
+	for rows.Next() {
+		var i PizzaOrder
+		if err := rows.Scan(
+			&i.PizzaOrderID,
+			&i.ShoppingCartID,
+			&i.PizzaName,
+			&i.PizzaPrice,
+			&i.Quantity,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getAllPizzas = `-- name: GetAllPizzas :many
@@ -115,6 +242,55 @@ func (q *Queries) GetPizzaByName(ctx context.Context, name string) (Pizza, error
 	return i, err
 }
 
+const getPizzaOrderByNameFromShoppingCart = `-- name: GetPizzaOrderByNameFromShoppingCart :one
+SELECT pizza_order_id, shopping_cart_id, pizza_name, pizza_price, quantity
+FROM pizza_order
+WHERE shopping_cart_id = $1 AND pizza_name = $2 LIMIT 1
+`
+
+type GetPizzaOrderByNameFromShoppingCartParams struct {
+	ShoppingCartID int32  `json:"shoppingCartId"`
+	PizzaName      string `json:"pizzaName"`
+}
+
+func (q *Queries) GetPizzaOrderByNameFromShoppingCart(ctx context.Context, arg GetPizzaOrderByNameFromShoppingCartParams) (PizzaOrder, error) {
+	row := q.db.QueryRowContext(ctx, getPizzaOrderByNameFromShoppingCart, arg.ShoppingCartID, arg.PizzaName)
+	var i PizzaOrder
+	err := row.Scan(
+		&i.PizzaOrderID,
+		&i.ShoppingCartID,
+		&i.PizzaName,
+		&i.PizzaPrice,
+		&i.Quantity,
+	)
+	return i, err
+}
+
+const subtractQuantityOfExistingPizzaFromOrder = `-- name: SubtractQuantityOfExistingPizzaFromOrder :one
+UPDATE pizza_order
+SET quantity = quantity - 1
+WHERE pizza_name = $1 AND shopping_cart_id = $2
+    RETURNING pizza_order_id, shopping_cart_id, pizza_name, pizza_price, quantity
+`
+
+type SubtractQuantityOfExistingPizzaFromOrderParams struct {
+	PizzaName      string `json:"pizzaName"`
+	ShoppingCartID int32  `json:"shoppingCartId"`
+}
+
+func (q *Queries) SubtractQuantityOfExistingPizzaFromOrder(ctx context.Context, arg SubtractQuantityOfExistingPizzaFromOrderParams) (PizzaOrder, error) {
+	row := q.db.QueryRowContext(ctx, subtractQuantityOfExistingPizzaFromOrder, arg.PizzaName, arg.ShoppingCartID)
+	var i PizzaOrder
+	err := row.Scan(
+		&i.PizzaOrderID,
+		&i.ShoppingCartID,
+		&i.PizzaName,
+		&i.PizzaPrice,
+		&i.Quantity,
+	)
+	return i, err
+}
+
 const updatePizza = `-- name: UpdatePizza :one
 UPDATE pizzas
 SET name = $2, description = $3, price = $4
@@ -144,4 +320,21 @@ func (q *Queries) UpdatePizza(ctx context.Context, arg UpdatePizzaParams) (Pizza
 		&i.Price,
 	)
 	return i, err
+}
+
+const updatePizzaQuantityInShoppingCart = `-- name: UpdatePizzaQuantityInShoppingCart :exec
+UPDATE pizza_order
+SET quantity = $1
+WHERE pizza_name = $2 AND shopping_cart_id = $3
+`
+
+type UpdatePizzaQuantityInShoppingCartParams struct {
+	Quantity       int32  `json:"quantity"`
+	PizzaName      string `json:"pizzaName"`
+	ShoppingCartID int32  `json:"shoppingCartId"`
+}
+
+func (q *Queries) UpdatePizzaQuantityInShoppingCart(ctx context.Context, arg UpdatePizzaQuantityInShoppingCartParams) error {
+	_, err := q.db.ExecContext(ctx, updatePizzaQuantityInShoppingCart, arg.Quantity, arg.PizzaName, arg.ShoppingCartID)
+	return err
 }

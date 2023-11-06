@@ -152,3 +152,157 @@ func (server *Server) deletePizza(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, "Pizza deleted successfully")
 }
+
+//	type createOrUpdatePizzaRequest struct {
+//		Name        string  `json:"name" binding:"required"`
+//		Description string  `json:"description" binding:"required"`
+//		Price       float64 `json:"price" binding:"required"`
+//	}
+
+//type createShoppingCartRequest struct {
+//	UserID string `json:"user_id" binding:"required"`
+//}
+
+func (server *Server) createShoppingCart(ctx *gin.Context) {
+	var req struct {
+		UserID int32 `uri:"id" binding:"required"`
+	}
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	shoppingCart, err := server.store.CreateShoppingCart(ctx, req.UserID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
+	ctx.JSON(http.StatusOK, shoppingCart)
+}
+
+type deletePizzaFromShoppingCartRequest struct {
+	ShoppingCartId int32  `json:"shopping_cart_id" binding:"required"`
+	PizzaName      string `json:"pizza_name" binding:"required"`
+}
+
+func (server *Server) deletePizzaFromShoppingCart(ctx *gin.Context) {
+	var req deletePizzaFromShoppingCartRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Could not bind the json"})
+		return
+	}
+
+	arg := db.DeleteAllPizzasWithTheSameNameFromShoppingCartParams{
+		ShoppingCartID: req.ShoppingCartId,
+		PizzaName:      req.PizzaName,
+	}
+	err := server.store.DeleteAllPizzasWithTheSameNameFromShoppingCart(ctx, arg)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not delete order"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Pizzas deleted successfully"})
+}
+
+type addPizzaToShoppingCartRequest struct {
+	PizzaName string `uri:"name" binding:"required"`
+}
+
+func (server *Server) addPizzaToShoppingCart(ctx *gin.Context) {
+	var req addPizzaToShoppingCartRequest
+	if err := ctx.ShouldBindUri(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Could not bind the uri"})
+		return
+	}
+
+	pizza, err := server.store.GetPizzaByName(ctx, req.PizzaName)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "Pizza not found"})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Server error"})
+		return
+	}
+
+	//TODO Hardcoded for example - replace this logic with actual userID retrieval
+	shoppingCartId := int32(1) // TODO Replace with real logic
+
+	arg := db.GetPizzaOrderByNameFromShoppingCartParams{
+		ShoppingCartID: shoppingCartId,
+		PizzaName:      pizza.Name,
+	}
+	pizzaOrder, err := server.store.GetPizzaOrderByNameFromShoppingCart(ctx, arg)
+	if err != nil {
+		if err != sql.ErrNoRows {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not find the order"})
+			return
+		}
+	}
+
+	if pizzaOrder.PizzaOrderID == 0 {
+		_, err = server.store.CreatePizzaOrder(ctx, db.CreatePizzaOrderParams{
+			ShoppingCartID: shoppingCartId,
+			PizzaName:      pizza.Name,
+			PizzaPrice:     pizza.Price,
+			Quantity:       int32(1),
+		})
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create order"})
+			return
+		}
+	} else {
+		_, err = server.store.AddQuantityToOrderForExistingPizza(ctx, db.AddQuantityToOrderForExistingPizzaParams{
+			PizzaName:      req.PizzaName,
+			ShoppingCartID: shoppingCartId,
+		})
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not add to quantity"})
+			return
+		}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Pizza added to the shopping cart"})
+}
+
+type changeQuantityOfPizzasRequest struct {
+	ShoppingCartId int32  `json:"shopping_cart_id" binding:"required"`
+	PizzaName      string `json:"pizza_name" binding:"required"`
+	Quantity       int32  `json:"quantity" binding:"required,min=1"`
+}
+
+func (server *Server) changeQuantityOfPizzas(ctx *gin.Context) {
+	var req changeQuantityOfPizzasRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Could not bind the json"})
+		return
+	}
+
+	arg := db.GetPizzaOrderByNameFromShoppingCartParams{
+		ShoppingCartID: req.ShoppingCartId,
+		PizzaName:      req.PizzaName,
+	}
+	_, err := server.store.GetPizzaOrderByNameFromShoppingCart(ctx, arg)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "Pizza order not found"})
+			return
+		}
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	err = server.store.UpdatePizzaQuantityInShoppingCart(ctx, db.UpdatePizzaQuantityInShoppingCartParams{
+		Quantity:       req.Quantity,
+		PizzaName:      req.PizzaName,
+		ShoppingCartID: req.ShoppingCartId,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not update order"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Pizza's quantity updated successfully"})
+
+}

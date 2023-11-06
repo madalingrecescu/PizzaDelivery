@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	db "github.com/madalingrecescu/PizzaDelivery/internal/db/sqlc_users"
+	"github.com/madalingrecescu/PizzaDelivery/internal/handlers/middleware"
 	"github.com/madalingrecescu/PizzaDelivery/internal/token"
 	"github.com/madalingrecescu/PizzaDelivery/internal/util"
 )
@@ -36,8 +37,10 @@ func (server *Server) setupRouter() {
 	router := gin.Default()
 
 	router.POST("/signup", server.createAccount)
-	router.GET("/user/:id", server.getAccount)
 	router.POST("/login", server.loginUser)
+
+	authRoutes := router.Group("/").Use(middleware.AuthMiddleware(server.tokenMaker))
+	authRoutes.GET("/user/:id", server.getAccount)
 
 	server.router = router
 
