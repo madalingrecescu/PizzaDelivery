@@ -138,7 +138,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		return
 	}
 
-	accesToken, err := server.tokenMaker.CreateToken(
+	accessToken, err := server.tokenMaker.CreateToken(
 		user.Username,
 		server.config.AccessTokenDuration,
 	)
@@ -148,7 +148,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	}
 
 	rsp := loginUserResponse{
-		AccessToken: accesToken,
+		AccessToken: accessToken,
 		User:        newUserResponse(user),
 	}
 	ctx.JSON(http.StatusOK, rsp)

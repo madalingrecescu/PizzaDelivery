@@ -206,7 +206,8 @@ func (server *Server) deletePizzaFromShoppingCart(ctx *gin.Context) {
 }
 
 type addPizzaToShoppingCartRequest struct {
-	PizzaName string `uri:"name" binding:"required"`
+	PizzaName      string `uri:"name" binding:"required"`
+	ShoppingCartId int32  `uri:"shopping_cart_id" binding:"required"`
 }
 
 func (server *Server) addPizzaToShoppingCart(ctx *gin.Context) {
@@ -226,11 +227,8 @@ func (server *Server) addPizzaToShoppingCart(ctx *gin.Context) {
 		return
 	}
 
-	//TODO Hardcoded for example - replace this logic with actual userID retrieval
-	shoppingCartId := int32(1) // TODO Replace with real logic
-
 	arg := db.GetPizzaOrderByNameFromShoppingCartParams{
-		ShoppingCartID: shoppingCartId,
+		ShoppingCartID: req.ShoppingCartId,
 		PizzaName:      pizza.Name,
 	}
 	pizzaOrder, err := server.store.GetPizzaOrderByNameFromShoppingCart(ctx, arg)
@@ -243,7 +241,7 @@ func (server *Server) addPizzaToShoppingCart(ctx *gin.Context) {
 
 	if pizzaOrder.PizzaOrderID == 0 {
 		_, err = server.store.CreatePizzaOrder(ctx, db.CreatePizzaOrderParams{
-			ShoppingCartID: shoppingCartId,
+			ShoppingCartID: req.ShoppingCartId,
 			PizzaName:      pizza.Name,
 			PizzaPrice:     pizza.Price,
 			Quantity:       int32(1),
@@ -255,7 +253,7 @@ func (server *Server) addPizzaToShoppingCart(ctx *gin.Context) {
 	} else {
 		_, err = server.store.AddQuantityToOrderForExistingPizza(ctx, db.AddQuantityToOrderForExistingPizzaParams{
 			PizzaName:      req.PizzaName,
-			ShoppingCartID: shoppingCartId,
+			ShoppingCartID: req.ShoppingCartId,
 		})
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not add to quantity"})
@@ -273,6 +271,7 @@ type changeQuantityOfPizzasRequest struct {
 }
 
 func (server *Server) changeQuantityOfPizzas(ctx *gin.Context) {
+
 	var req changeQuantityOfPizzasRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Could not bind the json"})

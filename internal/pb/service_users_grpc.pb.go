@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v4.25.0
-// source: service_pizzeria.proto
+// source: service_users.proto
 
 package pb
 
@@ -101,5 +101,5 @@ var Pizzeria_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "service_pizzeria.proto",
+	Metadata: "service_users.proto",
 }
