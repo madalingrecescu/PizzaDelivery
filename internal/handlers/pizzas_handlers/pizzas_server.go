@@ -3,13 +3,15 @@ package pizzas_handlers
 import (
 	"github.com/gin-gonic/gin"
 	db "github.com/madalingrecescu/PizzaDelivery/internal/db/sqlc_pizzas"
+	"github.com/madalingrecescu/PizzaDelivery/internal/token"
 	"github.com/madalingrecescu/PizzaDelivery/internal/util"
 )
 
 type Server struct {
-	config util.Config
-	store  db.Store
-	router *gin.Engine
+	config     util.Config
+	store      db.Store
+	router     *gin.Engine
+	tokenMaker token.Maker
 }
 
 // NewServer creates a new HTTP server and setup routing
@@ -33,11 +35,13 @@ func (server *Server) setupRouter() {
 	router.POST("/pizzas", server.createPizza)
 	router.DELETE("/pizzas/id/:id", server.deletePizza)
 
-	router.POST("addToOrder/:name", server.addPizzaToShoppingCart)
-	router.DELETE("deletePizzaOrder", server.deletePizzaFromShoppingCart)
-	router.PUT("changeOrderQuantity", server.changeQuantityOfPizzas)
+	router.POST("/addToOrder", server.addPizzaToShoppingCart)
+	router.DELETE("/deletePizzaOrder", server.deletePizzaFromShoppingCart)
+	router.PUT("/changeOrderQuantity", server.changeQuantityOfPizzas)
 
-	router.POST("shoppingCart/:id", server.createShoppingCart)
+	router.POST("/shoppingCart/:id", server.createShoppingCart)
+
+	router.POST("/order", server.order)
 
 	server.router = router
 

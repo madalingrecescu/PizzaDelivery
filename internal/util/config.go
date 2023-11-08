@@ -13,6 +13,7 @@ type Config struct {
 	DBDriverPizzas      string        `mapstructure:"DB_DRIVER_PIZZAS"`
 	DBSourcePizzas      string        `mapstructure:"DB_SOURCE_PIZZAS"`
 	UsersServerAddress  string        `mapstructure:"USER_SERVER_ADDRESS"`
+	GRPCServerAddress   string        `mapstructure:"GRPC_SERVER_ADDRESS"`
 	PizzasServerAddress string        `mapstructure:"PIZZAS_SERVER_ADDRESS"`
 	TokenSymmetricKey   string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
 	AccessTokenDuration time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`

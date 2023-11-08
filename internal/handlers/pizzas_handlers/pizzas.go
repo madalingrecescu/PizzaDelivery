@@ -2,9 +2,12 @@ package pizzas_handlers
 
 import (
 	"database/sql"
+	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-openapi/errors"
 	db "github.com/madalingrecescu/PizzaDelivery/internal/db/sqlc_pizzas"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -165,14 +168,14 @@ func (server *Server) deletePizza(ctx *gin.Context) {
 
 func (server *Server) createShoppingCart(ctx *gin.Context) {
 	var req struct {
-		UserID int32 `uri:"id" binding:"required"`
+		Username string `uri:"username" binding:"required"`
 	}
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	shoppingCart, err := server.store.CreateShoppingCart(ctx, req.UserID)
+	shoppingCart, err := server.store.CreateShoppingCart(ctx, req.Username)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
@@ -186,6 +189,7 @@ type deletePizzaFromShoppingCartRequest struct {
 }
 
 func (server *Server) deletePizzaFromShoppingCart(ctx *gin.Context) {
+
 	var req deletePizzaFromShoppingCartRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Could not bind the json"})
@@ -206,14 +210,70 @@ func (server *Server) deletePizzaFromShoppingCart(ctx *gin.Context) {
 }
 
 type addPizzaToShoppingCartRequest struct {
-	PizzaName string `uri:"name" binding:"required"`
+	PizzaName string `json:"name" binding:"required"`
+	Token     string `json:"token" binding:"required"`
+}
+type User struct {
+	Username    string `json:"username"`
+	Email       string `json:"email"`
+	PhoneNumber string `json:"phone_number"`
 }
 
 func (server *Server) addPizzaToShoppingCart(ctx *gin.Context) {
 	var req addPizzaToShoppingCartRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Could not bind the uri"})
 		return
+	}
+	if req.Token == "" {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "You need to authenticate first"})
+		return
+	}
+	userServiceUrl := "http://localhost:3000/user"
+	userReq, err := http.NewRequest("GET", userServiceUrl, nil)
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return
+	}
+	userReq.Header.Set("Authorization", "Bearer "+req.Token)
+
+	client := &http.Client{}
+	resp, err := client.Do(userReq)
+	if err != nil {
+		fmt.Println("Error 1 request:", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	var user User
+	if resp.StatusCode != http.StatusOK {
+		fmt.Println("Received non-OK status:", resp.StatusCode)
+		// Read the response body to identify the issue
+		responseBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Println("Error reading response body:", err)
+			return
+		}
+		defer resp.Body.Close()
+		fmt.Println("Response body:", string(responseBody))
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
+		fmt.Println("Error 3 request:", err)
+
+		return
+	}
+
+	shoppingCart, err := server.store.GetShoppingCartByUsername(ctx, user.Username)
+	if err == sql.ErrNoRows {
+		shoppingCart1, err1 := server.store.CreateShoppingCart(ctx, user.Username)
+		if err1 != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Error at creating shopping cart"})
+			return
+		}
+		shoppingCart = shoppingCart1
+	} else if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Error at getting shopping cart"})
 	}
 
 	pizza, err := server.store.GetPizzaByName(ctx, req.PizzaName)
@@ -226,11 +286,8 @@ func (server *Server) addPizzaToShoppingCart(ctx *gin.Context) {
 		return
 	}
 
-	//TODO Hardcoded for example - replace this logic with actual userID retrieval
-	shoppingCartId := int32(1) // TODO Replace with real logic
-
 	arg := db.GetPizzaOrderByNameFromShoppingCartParams{
-		ShoppingCartID: shoppingCartId,
+		ShoppingCartID: shoppingCart.ShoppingCartID,
 		PizzaName:      pizza.Name,
 	}
 	pizzaOrder, err := server.store.GetPizzaOrderByNameFromShoppingCart(ctx, arg)
@@ -243,7 +300,7 @@ func (server *Server) addPizzaToShoppingCart(ctx *gin.Context) {
 
 	if pizzaOrder.PizzaOrderID == 0 {
 		_, err = server.store.CreatePizzaOrder(ctx, db.CreatePizzaOrderParams{
-			ShoppingCartID: shoppingCartId,
+			ShoppingCartID: shoppingCart.ShoppingCartID,
 			PizzaName:      pizza.Name,
 			PizzaPrice:     pizza.Price,
 			Quantity:       int32(1),
@@ -255,7 +312,7 @@ func (server *Server) addPizzaToShoppingCart(ctx *gin.Context) {
 	} else {
 		_, err = server.store.AddQuantityToOrderForExistingPizza(ctx, db.AddQuantityToOrderForExistingPizzaParams{
 			PizzaName:      req.PizzaName,
-			ShoppingCartID: shoppingCartId,
+			ShoppingCartID: shoppingCart.ShoppingCartID,
 		})
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Could not add to quantity"})
@@ -273,6 +330,7 @@ type changeQuantityOfPizzasRequest struct {
 }
 
 func (server *Server) changeQuantityOfPizzas(ctx *gin.Context) {
+
 	var req changeQuantityOfPizzasRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Could not bind the json"})
@@ -305,4 +363,98 @@ func (server *Server) changeQuantityOfPizzas(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Pizza's quantity updated successfully"})
 
+}
+
+type orderRequest struct {
+	Token string `json:"token" binding:"required"`
+}
+type orderResponse struct {
+	Username    string                `json:"username" binding:"required"`
+	Email       string                `json:"Email" binding:"required"`
+	PhoneNumber string                `json:"phone_number" binding:"required"`
+	Orders      []pizzasOrderResponse `json:"orders"`
+	TotalCost   float64               `json:"total-cost"`
+}
+type pizzasOrderResponse struct {
+	PizzaName string `json:"pizza_name"`
+	Quantity  int32  `json:"quantity"`
+}
+
+func (server *Server) order(ctx *gin.Context) {
+	var req orderRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Could not bind the uri"})
+		return
+	}
+	if req.Token == "" {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "You need to authenticate first"})
+		return
+	}
+	userServiceUrl := "http://localhost:3000/user"
+	userReq, err := http.NewRequest("GET", userServiceUrl, nil)
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return
+	}
+	userReq.Header.Set("Authorization", "Bearer "+req.Token)
+
+	client := &http.Client{}
+	resp, err := client.Do(userReq)
+	if err != nil {
+		fmt.Println("Error 1 request:", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	var user User
+	if resp.StatusCode != http.StatusOK {
+		fmt.Println("Received non-OK status:", resp.StatusCode)
+		// Read the response body to identify the issue
+		responseBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Println("Error reading response body:", err)
+			return
+		}
+		defer resp.Body.Close()
+		fmt.Println("Response body:", string(responseBody))
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
+		fmt.Println("Error 3 request:", err)
+
+		return
+	}
+
+	shoppingCart, err := server.store.GetShoppingCartByUsername(ctx, user.Username)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Error at getting shopping cart"})
+	}
+	orders, err := server.store.GetAllOrdersByShoppingCartID(ctx, shoppingCart.ShoppingCartID)
+
+	var userOrdersResponse orderResponse
+	userOrdersResponse.Username = user.Username
+	userOrdersResponse.Email = user.Email
+	userOrdersResponse.PhoneNumber = user.PhoneNumber
+
+	var allOrders []pizzasOrderResponse
+	var totalCost float64
+
+	for _, order := range orders {
+		orderDetails := pizzasOrderResponse{
+			PizzaName: order.PizzaName,
+			Quantity:  order.Quantity,
+		}
+		allOrders = append(allOrders, orderDetails)
+		// Calculate total cost - modify this based on how you store the pizza prices in orders
+		totalCost += order.PizzaPrice * float64(order.Quantity)
+	}
+	userOrdersResponse.Orders = allOrders
+	userOrdersResponse.TotalCost = totalCost
+
+	_, err = server.store.CreateShoppingCart(ctx, user.Username)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Error at creating shopping cart"})
+		return
+	}
+	ctx.JSON(http.StatusOK, userOrdersResponse)
 }

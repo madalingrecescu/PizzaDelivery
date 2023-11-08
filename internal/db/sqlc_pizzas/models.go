@@ -22,6 +22,6 @@ type PizzaOrder struct {
 }
 
 type ShoppingCart struct {
-	ShoppingCartID int32 `json:"shoppingCartId"`
-	UserID         int32 `json:"userId"`
+	ShoppingCartID int32  `json:"shoppingCartId"`
+	Username       string `json:"username"`
 }

@@ -102,16 +102,16 @@ func (q *Queries) CreatePizzaOrder(ctx context.Context, arg CreatePizzaOrderPara
 
 const createShoppingCart = `-- name: CreateShoppingCart :one
 INSERT INTO shopping_cart (
-    user_id
+    username
 ) VALUES (
           $1
-         ) RETURNING shopping_cart_id, user_id
+         ) RETURNING shopping_cart_id, username
 `
 
-func (q *Queries) CreateShoppingCart(ctx context.Context, userID int32) (ShoppingCart, error) {
-	row := q.db.QueryRowContext(ctx, createShoppingCart, userID)
+func (q *Queries) CreateShoppingCart(ctx context.Context, username string) (ShoppingCart, error) {
+	row := q.db.QueryRowContext(ctx, createShoppingCart, username)
 	var i ShoppingCart
-	err := row.Scan(&i.ShoppingCartID, &i.UserID)
+	err := row.Scan(&i.ShoppingCartID, &i.Username)
 	return i, err
 }
 
@@ -263,6 +263,21 @@ func (q *Queries) GetPizzaOrderByNameFromShoppingCart(ctx context.Context, arg G
 		&i.PizzaPrice,
 		&i.Quantity,
 	)
+	return i, err
+}
+
+const getShoppingCartByUsername = `-- name: GetShoppingCartByUsername :one
+SELECT shopping_cart_id, username
+FROM shopping_cart
+WHERE username = $1
+ORDER BY shopping_cart_id DESC
+    LIMIT 1
+`
+
+func (q *Queries) GetShoppingCartByUsername(ctx context.Context, username string) (ShoppingCart, error) {
+	row := q.db.QueryRowContext(ctx, getShoppingCartByUsername, username)
+	var i ShoppingCart
+	err := row.Scan(&i.ShoppingCartID, &i.Username)
 	return i, err
 }
 

@@ -33,6 +33,7 @@ sqlc:
 
 test:
 	go test -v -cover ./...
+
 users:
 	go run cmd/users/users_main.go
 pizzas:
@@ -43,4 +44,15 @@ mock_users:
 mock_pizzas:
 	mockgen -package mockdb_pizzas -destination internal/db/mock/pizzas_mock/store_pizzas.go github.com/madalingrecescu/PizzaDelivery/internal/db/sqlc_pizzas Store
 
-.PHONY:pizzas mock_pizzas mock_users users createdb_pizzas createdb_users dropdb_pizzas dropdb_user migratedown_pizzas migratedown_users migrateup_pizzas migrateup_users generate_go_server_code_users generate_go_client_code_users sqlc test
+proto:
+	rm -f internal/pb/*.go
+	protoc --proto_path=internal/proto --go_out=internal/pb --go_opt=paths=source_relative \
+        --go-grpc_out=internal/pb --go-grpc_opt=paths=source_relative \
+        internal/proto/*.proto
+
+grpc:
+	go run cmd/gRPC/gRPC_main.go
+
+evans:
+	evans --host localhost --port 3001 -r repl
+.PHONY:evans proto pizzas mock_pizzas mock_users users createdb_pizzas createdb_users dropdb_pizzas dropdb_user migratedown_pizzas migratedown_users migrateup_pizzas migrateup_users generate_go_server_code_users generate_go_client_code_users sqlc test

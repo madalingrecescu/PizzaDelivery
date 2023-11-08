@@ -20,6 +20,11 @@ func main() {
 	}
 
 	store := db.NewStore(conn)
+
+	runGinServer(config, store)
+}
+
+func runGinServer(config util.Config, store db.Store) {
 	server, err := user_handlers.NewServer(config, store)
 	if err != nil {
 		log.Fatal("Cannot create server users: ", err)
@@ -29,4 +34,5 @@ func main() {
 	if err != nil {
 		log.Fatalln("cannot start server users: ", err)
 	}
+	log.Printf("starting users server at %s", config.UsersServerAddress)
 }
