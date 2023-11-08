@@ -32,10 +32,18 @@ WHERE pizza_id = $1;
 
 -- name: CreateShoppingCart :one
 INSERT INTO shopping_cart (
-    user_id
+    username
 ) VALUES (
           $1
          ) RETURNING *;
+
+-- name: GetShoppingCartByUsername :one
+SELECT *
+FROM shopping_cart
+WHERE username = $1
+ORDER BY shopping_cart_id DESC
+    LIMIT 1;
+
 
 -- name: CreatePizzaOrder :one
 INSERT INTO pizza_order (

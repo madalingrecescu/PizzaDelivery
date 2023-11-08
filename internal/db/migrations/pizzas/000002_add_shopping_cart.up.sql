@@ -1,6 +1,6 @@
 CREATE TABLE "shopping_cart" (
                                "shopping_cart_id" SERIAL PRIMARY KEY,
-                               "user_id" INTEGER NOT NULL
+                               "username" VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE "pizza_order" (

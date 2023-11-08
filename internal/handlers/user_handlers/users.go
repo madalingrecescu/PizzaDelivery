@@ -5,8 +5,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-openapi/errors"
 	db "github.com/madalingrecescu/PizzaDelivery/internal/db/sqlc_users"
+	"github.com/madalingrecescu/PizzaDelivery/internal/token"
 	"github.com/madalingrecescu/PizzaDelivery/internal/util"
 	"net/http"
+	"strings"
 )
 
 type createAccountRequest struct {
@@ -96,11 +98,11 @@ func (server *Server) getAccount(ctx *gin.Context) {
 		PhoneNumber: account.PhoneNumber,
 	}
 
-	//authPayload := ctx.MustGet("authorization_payload").(*token.Payload)
-	//if authPayload.Username != account.Username {
-	//	ctx.JSON(http.StatusUnauthorized, errors.New(http.StatusUnauthorized, "You are not logged into this account"))
-	//	return
-	//}
+	authPayload := ctx.MustGet("authorization_payload").(*token.Payload)
+	if authPayload.Username != account.Username {
+		ctx.JSON(http.StatusUnauthorized, errors.New(http.StatusUnauthorized, "You are not logged into this account"))
+		return
+	}
 	ctx.JSON(http.StatusOK, rsp)
 }
 
@@ -152,4 +154,41 @@ func (server *Server) loginUser(ctx *gin.Context) {
 		User:        newUserResponse(user),
 	}
 	ctx.JSON(http.StatusOK, rsp)
+}
+
+func (server *Server) getUserFromHeader(ctx *gin.Context) {
+
+	// Get the Authorization header
+	headerValue := ctx.GetHeader("Authorization")
+	// Extract the token part after "Bearer "
+	tokenParts := strings.Split(headerValue, "Bearer ")
+	if len(tokenParts) != 2 {
+		// Invalid token format
+		ctx.JSON(http.StatusBadRequest, errors.New(http.StatusBadRequest, "Invalid Bearer token format"))
+		return
+	}
+	accessToken := tokenParts[1]
+
+	// Proceed with token verification and user retrieval
+	payload, err := server.tokenMaker.VerifyToken(accessToken)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errors.New(http.StatusUnauthorized, "Invalid or expired access token"))
+		return
+	}
+
+	// Use the payload to retrieve the user details from the database
+	user, err := server.store.GetAccountByUsername(ctx, payload.Username)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	rsp := userResponse{
+		Username:    user.Username,
+		Email:       user.Email,
+		PhoneNumber: user.PhoneNumber,
+	}
+
+	ctx.JSON(http.StatusOK, rsp)
+
 }
